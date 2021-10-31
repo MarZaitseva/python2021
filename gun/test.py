@@ -236,13 +236,13 @@ target.new_target()
 target.draw()
 
 while not finished:
-
     
-    text = font.render(str(target.points), 1, (0, 0, 0), (255, 255, 255))
-    screen.blit(text, (10, 10))
+    screen.fill(WHITE)
+
+    text1 = font.render(str(target.points), 1, (0, 0, 0))
+    screen.blit(text1, (10, 10))
     pygame.display.update()
 
-    screen.fill(WHITE)
     gun.draw()
     target.draw()
     for b in balls:
@@ -268,9 +268,11 @@ while not finished:
             target.live = 0
             target.draw()
             target.hit()
-            print('очки:', target.points)
-            
+            print('очки:', target.points)          
             gun.point = 0
+            text2 = font.render("Вы уничтожили цель за"+ str(gun.point) + "выстрелов", 1, (0, 0, 0))
+            screen.blit(text2, (10, 10))
+            pygame.display.update()
             
         if balls[-1]._live == 0 and target.live == 0:
             target.live = 1

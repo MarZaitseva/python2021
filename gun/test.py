@@ -131,7 +131,7 @@ class Gun:
         if obj.live == 1:
             self.f2_on = 1
         else:
-            self.point = 0
+            return
 
     def fire2_end(self, event, obj):
         """Выстрел мячом.
@@ -153,7 +153,7 @@ class Gun:
             self.point += 1
             print(self.point)
         else:
-            self.point = 0
+            return
 
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
@@ -223,7 +223,7 @@ screen.fill((255, 255, 255))
 bullet = 0
 balls = []
 
-font = pygame.font.SysFont(None, 50)
+font = pygame.font.SysFont('arial', 30)
 
 pygame.display.update()
 clock = pygame.time.Clock()
@@ -269,12 +269,17 @@ while not finished:
             target.draw()
             target.hit()
             print('очки:', target.points)          
-            gun.point = 0
-            text2 = font.render("Вы уничтожили цель за"+ str(gun.point) + "выстрелов", 1, (0, 0, 0))
-            screen.blit(text2, (10, 10))
-            pygame.display.update()
+          
             
         if balls[-1]._live == 0 and target.live == 0:
+            for i in range(5000):
+                text2 = font.render("Вы уничтожили цель за "+ str(gun.point) + " выстрелов", 1, (0, 0, 0))
+                screen.blit(text2, (100, 10))
+                pygame.display.update()
+                i += 1
+
+            gun.point = 0
+
             target.live = 1
             target.new_target()
             target.draw()

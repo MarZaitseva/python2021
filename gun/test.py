@@ -193,13 +193,14 @@ class Target:
         self.screen = screen
         self.color = RED
         self.points = 0
+        self.x = 0
+        self.y = 0
 
     def new_target(self):
         """ Инициализация новой цели. """
-        x = self.x = randint(600, 780)
-        y = self.y = randint(300, 550)
-        r = self.r = randint(10, 50)
-        color = self.color = RED
+        self.x = randint(600, 780)
+        self.y = randint(300, 550)
+        self.r = randint(10, 50)
 
     def hit(self, dpoints=1):
         """Попадание шарика в цель."""
@@ -216,6 +217,11 @@ class Target:
     def live(self, a):
         self.live = int(a)
 
+class Target2(Target):
+    def __init__(self, screen):
+        super().__init__(screen)
+
+
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -229,11 +235,15 @@ pygame.display.update()
 clock = pygame.time.Clock()
 gun = Gun(screen)
 target = Target(screen)
+target2 = Target2(screen)
 finished = False
 
 target.live(int(1))
 target.new_target()
 target.draw()
+target2.live(int(1))
+target2.new_target()
+target2.draw()
 
 while not finished:
     

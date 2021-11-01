@@ -204,7 +204,7 @@ class Target:
         self.r = randint(10, 50)
         self.v = randint(-5, 10)
         self.vx = randint(-3, 8)
-        self.vy = -int(self.v ** 2 - self.vx ** 2) ** (0.5)
+        self.vy = -int((abs(self.v ** 2 - self.vx ** 2)) ** (0.5))
 
     def hit(self, dpoints=1):
         """Попадание шарика в цель."""
@@ -233,7 +233,7 @@ class Target:
             self.vx *= (-1)
             self.x += self.vx
             self.y += self.vy
-        if int(self.x - self.r) >= int(0) and int(WIDTH - self.x) >= int(self.r) and int(self.y - self.r) <= int(0) or int(self.y + self.r) >= int(HEIGHT):
+        if self.x - self.r >= 0 and WIDTH - self.x >= self.r and self.y - self.r <= 0 or self.y + self.r >= HEIGHT:
             if self.y - self.r <= 0:
                 self.y = 0 + self.r
             if self.y + self.r >= HEIGHT:

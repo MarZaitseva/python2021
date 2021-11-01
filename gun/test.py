@@ -21,8 +21,8 @@ WHITE = 0xFFFFFF
 GREY = 0x7D7D7D
 GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = int(800)
+HEIGHT = int(600)
 
 g = 10
 
@@ -127,19 +127,19 @@ class Gun:
         self.height = 5
         self.point = 0
 
-    def fire2_start(self, event, obj):
-        if obj.live == 1:
+    def fire2_start(self, event, obj, obj2):
+        if obj.live == 1 or obj2.live == 1:
             self.f2_on = 1
         else:
             return
 
-    def fire2_end(self, event, obj):
+    def fire2_end(self, event, obj, obj2):
         """Выстрел мячом.
 
         Происходит при отпускании кнопки мыши.
         Начальные значения компонент скорости мяча vx и vy зависят от положения мыши.
         """
-        if obj.live == 1:
+        if obj.live == 1 or obj2.live:
             global balls, bullet
             bullet += 1
             new_ball = Ball(self.screen)
@@ -195,12 +195,16 @@ class Target:
         self.points = 0
         self.x = 0
         self.y = 0
-
+        self.r = 0
+       
     def new_target(self):
         """ Инициализация новой цели. """
         self.x = randint(600, 780)
         self.y = randint(300, 550)
         self.r = randint(10, 50)
+        self.v = randint(-5, 10)
+        self.vx = randint(-3, 8)
+        self.vy = -int(self.v ** 2 - self.vx ** 2) ** (0.5)
 
     def hit(self, dpoints=1):
         """Попадание шарика в цель."""
@@ -217,9 +221,42 @@ class Target:
     def live(self, a):
         self.live = int(a)
 
+    def move(self):
+        if self.x - self.r >= 0 and WIDTH - self.x >= self.r and self.y - self.r >= 0 and self.y + self.r <= HEIGHT:
+            self.x += self.vx
+            self.y += self.vy
+        if self.x - self.r <= 0 or WIDTH - self.x <= self.r and self.y - self.r >= 0 and self.y + self.r <= HEIGHT:
+            if WIDTH - self.x <= self.r:
+                self.x = WIDTH - self.r
+            if self.x - self.r <= 0:
+                self.x = self.r
+            self.vx *= (-1)
+            self.x += self.vx
+            self.y += self.vy
+        if int(self.x - self.r) >= int(0) and int(WIDTH - self.x) >= int(self.r) and int(self.y - self.r) <= int(0) or int(self.y + self.r) >= int(HEIGHT):
+            if self.y - self.r <= 0:
+                self.y = 0 + self.r
+            if self.y + self.r >= HEIGHT:
+                self.y = HEIGHT - self.r
+            self.vy *= (-1)
+            self.x += self.vx
+            self.y += self.vy
+        if self.x - self.r <= 0 or WIDTH - self.x <= self.r and self.y - self.r <= 0 or self.y + self.r >= HEIGHT:
+            if self.y - self.r <= 0:
+                self.y = 0 + self.r
+            if self.y + self.r >= HEIGHT:
+                self.y = HEIGHT - self.r
+            if WIDTH - self.x <= self.r:
+                self.x = WIDTH - self.r
+            self.vy *= (-1)
+            self.vx *= (-1)
+            self.x += self.vx
+            self.y += self.vy
+
 class Target2(Target):
     def __init__(self, screen):
         super().__init__(screen)
+        self.color = BLACK
 
 
 
@@ -255,6 +292,9 @@ while not finished:
 
     gun.draw()
     target.draw()
+    target.move()
+    target2.draw()
+    target2.move()
     for b in balls:
         b.draw()
     pygame.display.update()
@@ -264,9 +304,9 @@ while not finished:
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            gun.fire2_start(event, target)
+            gun.fire2_start(event, target, target2)
         elif event.type == pygame.MOUSEBUTTONUP:
-            gun.fire2_end(event, target)
+            gun.fire2_end(event, target, target2)
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
 
@@ -278,12 +318,14 @@ while not finished:
             target.live = 0
             target.draw()
             target.hit()
-            print('очки:', target.points)          
+            print('очки:', target.points) 
+        if b.hittest(target2) and target2.live == 1 and b._live == 1:
+            target2.live = 0
+            target2.draw()
           
-            
-        if balls[-1]._live == 0 and target.live == 0:
+        if balls[-1]._live == 0 and target.live == 0 and target2.live == 0:
             for i in range(5000):
-                text2 = font.render("Вы уничтожили цель за "+ str(gun.point) + " выстрелов", 1, (0, 0, 0))
+                text2 = font.render("Вы уничтожили цели за "+ str(gun.point) + " выстрелов", 1, (0, 0, 0))
                 screen.blit(text2, (100, 10))
                 pygame.display.update()
                 i += 1
@@ -291,12 +333,12 @@ while not finished:
             gun.point = 0
 
             target.live = 1
+            target2.live = 1
             target.new_target()
+            target2.new_target()
             target.draw()
+            target2.draw()
 
     gun.power_up()
-
-    '''text1 = f1.render(str(target.point, True, (255, 255, 255))
-    sc.blit(text1, (10, 10))'''
 
 pygame.quit()
